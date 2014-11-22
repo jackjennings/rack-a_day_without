@@ -2,6 +2,8 @@
 
 [![Build Status](https://travis-ci.org/jackjennings/rack-a_day_without.svg)](https://travis-ci.org/jackjennings/rack-a_day_without)
 
+[![Gem Version](https://badge.fury.io/rb/rack-a_day_without.svg)](http://badge.fury.io/rb/rack-a_day_without)
+
 `Rack::ADayWithout` is a middleware for Rack-based web applications, originally built to display alternate content for the [Day Without Art](https://en.wikipedia.org/wiki/Day_Without_Art). All requests on a given day will be served blank or alternate content.
 
 ## Installation
