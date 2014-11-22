@@ -27,7 +27,7 @@ describe Rack::ADayWithout do
       body.body.must_equal ['Downstream app']
     end
 
-    it 'passes supplied content' do
+    it 'blocks with supplied content' do
       endpoint = Rack::ADayWithout.new @app, 'Art',
                                        on: Date.today,
                                        content: 'foobar'
@@ -36,7 +36,7 @@ describe Rack::ADayWithout do
       body.body.must_equal ['foobar']
     end
 
-    it 'passes supplied file' do
+    it 'blocks with supplied file' do
       path = 'test/fixtures/index.html'
       content = File.read(path)
       endpoint = Rack::ADayWithout.new @app, 'Art',
@@ -45,6 +45,51 @@ describe Rack::ADayWithout do
       status, headers, body = endpoint.call(Rack::MockRequest.env_for('/bar'))
       status.must_equal 200
       body.body.must_equal [content]
+    end
+
+    it 'passes allowed routes' do
+      endpoint = Rack::ADayWithout.new @app, 'Art',
+                                       on: Date.today,
+                                       allow: '/bar'
+      status, headers, body = endpoint.call(Rack::MockRequest.env_for('/bar'))
+      status.must_equal 200
+      body.body.must_equal ['Downstream app']
+    end
+
+    it 'blocks sub-path of allowed routes' do
+      endpoint = Rack::ADayWithout.new @app, 'Art',
+                                       on: Date.today,
+                                       allow: '/bar'
+      status, headers, body = endpoint.call(Rack::MockRequest.env_for('/bar/bar'))
+      status.must_equal 200
+      body.body.must_equal ['']
+    end
+
+    it 'passes allowed routes as regexp' do
+      endpoint = Rack::ADayWithout.new @app, 'Art',
+                                       on: Date.today,
+                                       allow: %r{^/bar}
+      status, headers, body = endpoint.call(Rack::MockRequest.env_for('/bar/baz'))
+      status.must_equal 200
+      body.body.must_equal ['Downstream app']
+    end
+
+    it 'passes allowed routes as array' do
+      endpoint = Rack::ADayWithout.new @app, 'Art',
+                                       on: Date.today,
+                                       allow: ['/bar', '/baz']
+      status, headers, body = endpoint.call(Rack::MockRequest.env_for('/bar'))
+      status.must_equal 200
+      body.body.must_equal ['Downstream app']
+    end
+
+    it 'passes allowed routes as array with regexps' do
+      endpoint = Rack::ADayWithout.new @app, 'Art',
+                                       on: Date.today,
+                                       allow: [%r{^/bar}, '/baz']
+      status, headers, body = endpoint.call(Rack::MockRequest.env_for('/bar/baz'))
+      status.must_equal 200
+      body.body.must_equal ['Downstream app']
     end
   end
 
@@ -64,6 +109,11 @@ describe Rack::ADayWithout do
     it 'stores a subject' do
       endpoint = Rack::ADayWithout.new @app, 'Art', on: Date.new
       endpoint.instance_variable_get('@subject').must_equal 'Art'
+    end
+
+    it 'stores allowed routes in array' do
+      endpoint = Rack::ADayWithout.new @app, 'Art', on: Date.new, allow: 'foo'
+      endpoint.instance_variable_get('@allowed').must_equal ['foo']
     end
   end
 
