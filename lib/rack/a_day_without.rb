@@ -14,7 +14,7 @@ module Rack
     end
 
     def call env
-      allowed = allowed_path?(env['PATH_INFO'])
+      allowed = allowed_path? env['PATH_INFO']
       if @date == Date.today && !allowed
         res = Response.new
         res.write @content
@@ -28,7 +28,7 @@ module Rack
 
     def parse_content options
       if options[:file]
-        ::File.read(options[:file])
+        ::File.read options[:file]
       else
         options[:content] || ''
       end
@@ -37,7 +37,7 @@ module Rack
     def parse_allowed_routes allowed
       if allowed.nil?
         []
-      elsif allowed.respond_to?(:to_ary)
+      elsif allowed.respond_to? :to_ary
         allowed.to_ary || [allowed]
       else
         [allowed]
