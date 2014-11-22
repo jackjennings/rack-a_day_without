@@ -24,7 +24,7 @@ module Rack
       @content = options[:content]
       @file = options[:file]
       @date = parse_date options[:on]
-      @allowed = parse_allowed_routes options[:allow]
+      @allowed = parse_allowed_routes options[:bypass]
     end
 
     def call env

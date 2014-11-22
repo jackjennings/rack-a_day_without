@@ -50,7 +50,7 @@ describe Rack::ADayWithout do
     it 'passes allowed routes' do
       endpoint = Rack::ADayWithout.new @app, 'Art',
                                        on: Date.today,
-                                       allow: '/bar'
+                                       bypass: '/bar'
       status, headers, body = endpoint.call(Rack::MockRequest.env_for('/bar'))
       status.must_equal 200
       body.body.must_equal ['Downstream app']
@@ -59,7 +59,7 @@ describe Rack::ADayWithout do
     it 'blocks sub-path of allowed routes' do
       endpoint = Rack::ADayWithout.new @app, 'Art',
                                        on: Date.today,
-                                       allow: '/bar'
+                                       bypass: '/bar'
       status, headers, body = endpoint.call(Rack::MockRequest.env_for('/bar/bar'))
       status.must_equal 200
       body.body.must_equal ['']
@@ -68,7 +68,7 @@ describe Rack::ADayWithout do
     it 'passes allowed routes as regexp' do
       endpoint = Rack::ADayWithout.new @app, 'Art',
                                        on: Date.today,
-                                       allow: %r{^/bar}
+                                       bypass: %r{^/bar}
       status, headers, body = endpoint.call(Rack::MockRequest.env_for('/bar/baz'))
       status.must_equal 200
       body.body.must_equal ['Downstream app']
@@ -77,7 +77,7 @@ describe Rack::ADayWithout do
     it 'passes allowed routes as array' do
       endpoint = Rack::ADayWithout.new @app, 'Art',
                                        on: Date.today,
-                                       allow: ['/bar', '/baz']
+                                       bypass: ['/bar', '/baz']
       status, headers, body = endpoint.call(Rack::MockRequest.env_for('/bar'))
       status.must_equal 200
       body.body.must_equal ['Downstream app']
@@ -86,7 +86,7 @@ describe Rack::ADayWithout do
     it 'passes allowed routes as array with regexps' do
       endpoint = Rack::ADayWithout.new @app, 'Art',
                                        on: Date.today,
-                                       allow: [%r{^/bar}, '/baz']
+                                       bypass: [%r{^/bar}, '/baz']
       status, headers, body = endpoint.call(Rack::MockRequest.env_for('/bar/baz'))
       status.must_equal 200
       body.body.must_equal ['Downstream app']
@@ -119,7 +119,7 @@ describe Rack::ADayWithout do
     end
 
     it 'stores allowed routes in array' do
-      endpoint = Rack::ADayWithout.new @app, 'Art', on: Date.new, allow: 'foo'
+      endpoint = Rack::ADayWithout.new @app, 'Art', on: Date.new, bypass: 'foo'
       endpoint.instance_variable_get('@allowed').must_equal ['foo']
     end
   end
