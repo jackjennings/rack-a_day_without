@@ -124,4 +124,17 @@ describe Rack::ADayWithout do
     end
   end
 
+  describe 'when dynamically subclassed' do
+    it 'creates a subclass' do
+      endpoint = Rack::ADayWithout::Art
+      endpoint.name.must_equal "Rack::ADayWithout::Art"
+      endpoint.ancestors.must_include Rack::ADayWithout
+    end
+
+    it 'store subject by name' do
+      endpoint = Rack::ADayWithout::Art.new @app, on: Date.today
+      endpoint.instance_variable_get('@subject').must_equal 'Art'
+    end
+  end
+
 end

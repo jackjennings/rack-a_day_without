@@ -5,6 +5,19 @@ require "rack/a_day_without/version"
 module Rack
   class ADayWithout
 
+    def self.const_missing const_name
+      const_set const_name, self.new_subject_subclass
+    end
+
+    def self.new_subject_subclass
+      Class.new(self) do
+        def initialize app, options = {}
+          subject = self.class.name.split('::').last
+          super app, subject, options
+        end
+      end
+    end
+
     def initialize app, subject, options = {}
       @app = app
       @subject = subject
