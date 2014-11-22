@@ -17,6 +17,7 @@ module Rack
       allowed = allowed_path? env['PATH_INFO']
       if @date == Date.today && !allowed
         res = Response.new
+        res["X-Day-Without"] = @subject
         res.write @content
         res.finish
       else

@@ -91,6 +91,13 @@ describe Rack::ADayWithout do
       status.must_equal 200
       body.body.must_equal ['Downstream app']
     end
+
+    it 'sets HTTP header when blocked' do
+      endpoint = Rack::ADayWithout.new @app, 'Art',
+                                       on: Date.today
+      status, headers, body = endpoint.call(Rack::MockRequest.env_for('/bar'))
+      headers['X-Day-Without'].must_equal 'Art'
+    end
   end
 
   describe 'when initialized' do
