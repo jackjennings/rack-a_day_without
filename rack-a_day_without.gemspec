@@ -8,9 +8,8 @@ Gem::Specification.new do |spec|
   spec.version       = Rack::ADayWithout::VERSION
   spec.authors       = ["Jack Jennings"]
   spec.email         = ["j@ckjennin.gs"]
-  spec.description   = %q{TODO: Write a gem description}
-  spec.summary       = %q{TODO: Write a gem summary}
-  spec.homepage      = ""
+  spec.summary       = %q{Rack middleware for serving alternate content on a given day}
+  spec.homepage      = "http://github.com/jackjennings/rack-a_day_without"
   spec.license       = "MIT"
 
   spec.files         = `git ls-files`.split($/)
