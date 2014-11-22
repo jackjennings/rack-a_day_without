@@ -1,12 +1,12 @@
-# ADayWithout
+# Rack::ADayWithout
 
-TODO: Write a gem description
+`Rack::ADayWithout` is a middleware for Rack-based web applications, originally built to display alternate content for the [Day Without Art](https://en.wikipedia.org/wiki/Day_Without_Art).
 
 ## Installation
 
 Add this line to your application's Gemfile:
 
-    gem 'a_day_without'
+    gem 'rack-a_day_without', require: 'rack/a_day_without'
 
 And then execute:
 
@@ -14,11 +14,54 @@ And then execute:
 
 Or install it yourself as:
 
-    $ gem install a_day_without
+    $ gem install rack-a_day_without
 
 ## Usage
 
-TODO: Write usage instructions here
+Use `Rack::ADayWithout` as a middleware in your Rack (or Rails) application. The `on` option must be set to the date the site should serve the alternate content.
+
+```ruby
+use Rack::ADayWithout, 'Art', on: '1/12/2014'
+```
+
+You can also use the alternate syntax which uses child-classes to set the `subject` of ADayWithout. This is equivalent to the above example:
+
+```ruby
+use Rack::ADayWithout::Art, on: '1/12/2014'
+```
+
+### Writing Content
+
+By default, the middleware will write an empty content string for all requests on the specified day. If the `content` or `file` options are set, the content string or file contents will be written instead.
+
+```ruby
+use Rack::ADayWithout, 'Art', on: '1/12/2014', content: 'A Day Without Art'
+# or...
+use Rack::ADayWithout, 'Art', on: '1/12/2014', file: './public/index.html'
+```
+
+### Bypass Routes
+
+The `bypass` option allows some routes to pass through the middleware without being blocked. This can be useful if you have an admin area that should still be available during the day without. `bypass` can be set to be a `String`, a `Regexp` or an `Array` of either.
+
+```ruby
+use Rack::ADayWithout, 'Art', on: '1/12/2014',
+  bypass: [/^\/admin/, '/about']
+```
+
+## With Rails
+
+Load the rack middleware inside of `config/application.rb`:
+
+```ruby
+module YourApp
+  class Application < Rails::Application
+    # ...
+
+    config.middleware.use Rack::ADayWithout, 'Art', on: '22/11/2014'
+  end
+end
+```
 
 ## Contributing
 
