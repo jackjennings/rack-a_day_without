@@ -8,8 +8,9 @@ module Rack
     def initialize app, subject, options = {}
       @app = app
       @subject = subject
-      @date = Date.parse options[:on].to_s
-      @content = parse_content options
+      @content = options[:content]
+      @file = options[:file]
+      @date = parse_date options[:on]
       @allowed = parse_allowed_routes options[:allow]
     end
 
@@ -18,7 +19,7 @@ module Rack
       if @date == Date.today && !allowed
         res = Response.new
         res["X-Day-Without"] = @subject
-        res.write @content
+        res.write content
         res.finish
       else
         @app.call env
@@ -27,11 +28,11 @@ module Rack
 
     private
 
-    def parse_content options
-      if options[:file]
-        ::File.read options[:file]
+    def content
+      if @file
+        ::File.read @file
       else
-        options[:content] || ''
+        @content.to_s
       end
     end
 
@@ -43,6 +44,10 @@ module Rack
       else
         [allowed]
       end
+    end
+
+    def parse_date dateish
+      Date.parse dateish.to_s
     end
 
     def allowed_path? path
