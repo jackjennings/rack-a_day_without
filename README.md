@@ -21,16 +21,24 @@ Or install it yourself as:
 
 ## Usage
 
-Use `Rack::ADayWithout` as a middleware in your Rack (or Rails) application. The `on` option must be set to the date the site should serve the alternate content.
+Use `Rack::ADayWithout` as a middleware in your Rack (or Rails) application. The first parameter defines the `subject` of ADayWithout. The `on` option must be set to the date the middleware should inject the alternate content. `on` should be either a string that can be parsed by `Date.parse` or an instance of `Date`.
 
 ```ruby
 use Rack::ADayWithout, 'Art', on: '1/12/2014'
 ```
 
-You can also use the alternate syntax which uses child-classes to set the `subject` of ADayWithout. This is equivalent to the above example:
+You can also use the alternate syntax which uses child classes to set the `subject` of ADayWithout. This is equivalent to the above example:
 
 ```ruby
 use Rack::ADayWithout::Art, on: '1/12/2014'
+```
+
+The child class is generated dynamically, and doesn't need to be defined beforehand. Thus the following are all valid:
+
+```ruby
+use Rack::ADayWithout::War, on: '1/1/2100'
+use Rack::ADayWithout::Pizza, on: '1/2/3456'
+use Rack::ADayWithout::Foo, on: '15/7/2020'
 ```
 
 ### Writing Content
@@ -38,9 +46,9 @@ use Rack::ADayWithout::Art, on: '1/12/2014'
 By default, the middleware will write an empty content string for all requests on the specified day. If the `content` or `file` options are set, the content string or file contents will be written instead.
 
 ```ruby
-use Rack::ADayWithout, 'Art', on: '1/12/2014', content: 'A Day Without Art'
+use Rack::ADayWithout::Art, on: '1/12/2014', content: 'A Day Without Art'
 # or...
-use Rack::ADayWithout, 'Art', on: '1/12/2014', file: './public/index.html'
+use Rack::ADayWithout::Art, on: '1/12/2014', file: './public/index.html'
 ```
 
 ### Bypass Routes
@@ -48,7 +56,7 @@ use Rack::ADayWithout, 'Art', on: '1/12/2014', file: './public/index.html'
 The `bypass` option allows some routes to pass through the middleware without being blocked. This can be useful if you have an admin area that should still be available during the day without. `bypass` can be set to be a `String`, a `Regexp` or an `Array` of either.
 
 ```ruby
-use Rack::ADayWithout, 'Art', on: '1/12/2014',
+use Rack::ADayWithout::Art, on: '1/12/2014',
   bypass: [/^\/admin/, '/about']
 ```
 
@@ -61,7 +69,7 @@ module YourApp
   class Application < Rails::Application
     # ...
 
-    config.middleware.use Rack::ADayWithout, 'Art', on: '22/11/2014'
+    config.middleware.use Rack::ADayWithout::Art, on: '22/11/2014'
   end
 end
 ```
