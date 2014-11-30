@@ -41,6 +41,14 @@ use Rack::ADayWithout::Pizza, on: '1/2/3456'
 use Rack::ADayWithout::Foo, on: '15/7/2020'
 ```
 
+### Setting Timezone
+
+By default `ADayWithout` will use GMT dates. You can set the `timezone` option for the middleware to use a different timezone that `tzinfo` knows about.
+
+```ruby
+use Rack::ADayWithout::Art, on: '1/12/2014', timezone: 'America/New_York'
+```
+
 ### Writing Content
 
 By default, the middleware will write an empty content string for all requests on the specified day. If the `content` or `file` options are set, the content string or file contents will be written instead.
