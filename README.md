@@ -9,7 +9,9 @@
 
 Add this line to your application's Gemfile:
 
-    gem 'rack-a_day_without', require: 'rack/a_day_without'
+```ruby
+gem 'rack-a_day_without', require: 'rack/a_day_without'
+```
 
 And then execute:
 
