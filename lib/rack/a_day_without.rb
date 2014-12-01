@@ -1,5 +1,6 @@
 require "date"
 require "tzinfo"
+require "uri"
 require "rack"
 require "rack/a_day_without/version"
 
@@ -24,16 +25,22 @@ module Rack
     def initialize app, subject, options = {}
       @app = app
       @subject = subject
-      @options = options
+      @options = {
+        timezone: 'GMT',
+        disabled_on: false
+      }.merge options
     end
 
     def call env
-      allowed = allowed_path? env['PATH_INFO']
-      if date == today && !allowed
-        res = Response.new
-        res["X-Day-Without"] = subject
-        res.write content
-        res.finish
+      request = Request.new env
+
+      return @app.call env unless request.get? && !request.xhr?
+
+      if disabling_query? request
+        disable! request
+        @app.call env
+      elsif !disabled?(request) && date == today && !allowed?(request)
+        block request
       else
         @app.call env
       end
@@ -63,13 +70,57 @@ module Rack
       end
     end
 
+    def allowed? request
+      allowed_path? request.path_info
+    end
+
     def allowed_path? path
       allowed_paths.any? do |a|
         a.is_a?(Regexp) ? a.match(path.to_s) : a == path.to_s
       end
     end
 
+    def disabling_query? request
+      key = @options[:disabled_on]
+      key != false && request.params.keys.include?(key)
+    end
+
+    def disable! request
+      if defined?(ActionDispatch::Request)
+        request = ActionDispatch::Request.new(request.env)
+        request.cookie_jar[:day_with] = { value: true, path: '/' }
+      end
+    end
+
+    def disabled? request
+      if defined?(ActionDispatch::Request)
+        request = ActionDispatch::Request.new(request.env)
+        request.cookie_jar[:day_with] || false
+      else
+        false
+      end
+    end
+
     private
+
+    def redirect request
+      params = request.params
+      params.delete @options[:disabled_on]
+      query = URI.encode params.map {|k,v| "#{k}=#{v}"}.join("&")
+      location = [request.scheme, '://', request.host, request.path].join
+      location << "?#{query}" unless query.empty?
+
+      Response.new do |r|
+        r.redirect location
+      end.finish
+    end
+
+    def block request
+      Response.new do |r|
+        r["X-Day-Without"] = subject
+        r.write content
+      end.finish
+    end
 
     def parse_allowed_routes allowed
       if allowed.nil?
@@ -86,7 +137,7 @@ module Rack
     end
 
     def parse_timezone timezone
-      TZInfo::Timezone.get timezone || 'GMT'
+      TZInfo::Timezone.get timezone
     end
 
   end
